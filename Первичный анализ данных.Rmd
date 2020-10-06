@@ -7,22 +7,79 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Команда
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+1. Григорий Макаров
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+2. Дейвид Капаца
 
-```{r cars}
-summary(cars)
+3. Анна Компанченко
+
+## Введение
+
+Данный отчёт представляет из себя результат работы по первичному анализу данных датасета `GrowthDJ`, который доступен по следующей  [ссылке](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).
+
+Сразу же запишем этот датасет в датафрейм `df`:
+```{r}
+df <- read.csv("GrowthDJ.csv")
 ```
 
-## Including Plots
+## Кoрoтко о данных
 
-You can also embed plots, for example:
+Это данные от 1992 года, в качестве индивидов выступают государства (121), в качестве признаков — различные социоэкономические показатели (10). 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+1. `oil`
+factor. Is the country an oil-producing country?
+
+2. `inter`
+factor. Does the country have better quality data?
+
+3. `oecd`
+factor. Is the country a member of the OECD?
+
+4. `gdp60`
+Per capita GDP in 1960.
+
+5. `gdp85`
+Per capita GDP in 1985.
+
+6. `gdpgrowth`
+Average growth rate of per capita GDP from 1960 to 1985 (in percent).
+
+7. `popgrowth`
+Average growth rate of working-age population 1960 to 1985 (in percent).
+
+8. `invest`
+Average ratio of investment (including Government Investment) to GDP from 1960 to 1985 (in percent).
+
+9. `school`
+Average fraction of working-age population enrolled in secondary school from 1960 to 1985 (in percent).
+
+10. `literacy60`
+Fraction of the population over 15 years old that is able to read and write in 1960 (in percent).
+
+Так как датасет состоит во многом из экономических данных, наверняка появится желание прологарифмировать данные, но это потом.
+
+## Описательная статистика
+
+```{r}
+summary(df)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Matrix plot
+
+```{r}
+panel.hist <- function(x, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(usr[1:2], 0, 1.5) )
+    h <- hist(x, plot = FALSE)
+    breaks <- h$breaks; nB <- length(breaks)
+    y <- h$counts; y <- y/max(y)
+    rect(breaks[-nB], 0, breaks[-1], y, col = "light blue", ...)
+}
+
+pairs(~ gdp60 + gdp85 + gdpgrowth + invest + school, data = df, diag.panel = panel.hist)
+```
+
+Хорошо видно по гистограммам, что для дальнейшего анализа надо логарифмировать показатели ВВП, а также `invest`.
