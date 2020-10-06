@@ -9,19 +9,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Команда
 
-1. Григорий Макаров
+1. Капаца Дейвид
 
-2. Дейвид Капаца
+2. Анна Компанченко
 
-3. Анна Компанченко
+3. Григорий Макаров
 
 ## Введение
 
 Данный отчёт представляет из себя результат работы по первичному анализу данных датасета `GrowthDJ`, который доступен по следующей  [ссылке](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).
 
-Сразу же запишем этот датасет в датафрейм `df`:
+Сразу же запишем этот датасет в датафрейм `df` и покажем начало таблицы:
 ```{r}
 df <- read.csv("GrowthDJ.csv")
+head(df)
 ```
 
 ## Кoрoтко о данных
@@ -66,6 +67,36 @@ Fraction of the population over 15 years old that is able to read and write in 1
 summary(df)
 ```
 
+### Виды признаков
+
+Таблица внизу показывает, какую моду имеют наши количественные признаки. Отсюда можно сделать вывод о том, являются они непрерывными или нет.
+
+```{r}
+library(dplyr)
+summarize(df, across(gdp60:literacy60, function(x) max(table(x))))
+```
+
+1. `oil` качественный
+
+2. `inter` качественный
+
+3. `oecd` качественный
+
+4. `gdp60` количественный почти непрерывный
+
+5. `gdp85` количественный почти непрерывный
+
+6. `gdpgrowth` количественный дискретный (дело в точности измерения)
+
+7. `popgrowth` количественный дискретный
+
+8. `invest` количественный дискретный
+
+9. `school` количественный дискретный
+
+10. `literacy60` количественный дискретный
+
+
 ## Matrix plot
 
 ```{r}
@@ -76,10 +107,16 @@ panel.hist <- function(x, ...)
     h <- hist(x, plot = FALSE)
     breaks <- h$breaks; nB <- length(breaks)
     y <- h$counts; y <- y/max(y)
-    rect(breaks[-nB], 0, breaks[-1], y, col = "light blue", ...)
+    rect(breaks[-nB], 0, breaks[-1], y, col = "orange", ...)
 }
 
 pairs(~ gdp60 + gdp85 + gdpgrowth + invest + school, data = df, diag.panel = panel.hist)
 ```
 
-Хорошо видно по гистограммам, что для дальнейшего анализа надо логарифмировать показатели ВВП, а также `invest`.
+Хорошо видно по гистограммам, что для дальнейшего анализа надо логарифмировать показатели ВВП. Сделаем именно это:
+
+```{r}
+pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + log(invest) + school, data = df, diag.panel = panel.hist)
+```
+
+Стало лучше.
