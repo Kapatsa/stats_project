@@ -36,7 +36,7 @@ factor. Is the country an oil-producing country?
 factor. Does the country have better quality data?
 
 3. `oecd`
-factor. Is the country a member of the OECD?
+factor. Is the country a member of the OECD? (Организация экономического сотрудничества и развития)
 
 4. `gdp60`
 Per capita GDP in 1960.
@@ -86,7 +86,7 @@ summarize(df, across(gdp60:literacy60, function(x) max(table(x))))
 
 5. `gdp85` количественный почти непрерывный
 
-6. `gdpgrowth` количественный дискретный (дело в точности измерения)
+6. `gdpgrowth` количественный дискретный
 
 7. `popgrowth` количественный дискретный
 
@@ -110,13 +110,53 @@ panel.hist <- function(x, ...)
     rect(breaks[-nB], 0, breaks[-1], y, col = "orange", ...)
 }
 
-pairs(~ gdp60 + gdp85 + gdpgrowth + invest + school, data = df, diag.panel = panel.hist)
+pairs(~ gdp60 + gdp85 + gdpgrowth + invest + school, data = df, diag.panel = panel.hist, pch = 19,  cex = 0.5)
 ```
 
 Хорошо видно по гистограммам, что для дальнейшего анализа надо логарифмировать показатели ВВП. Сделаем именно это:
 
 ```{r}
-pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + log(invest) + school, data = df, diag.panel = panel.hist)
+pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, diag.panel = panel.hist, pch = 19,  cex = 0.5)
 ```
 
 Стало лучше.
+
+
+### Аутлаеры
+
+Видим очевидный аутлаер по признаку `gdp60`. Его можно заметить и по признаку `gdp60`.
+
+```{r}
+which.max(df$gdp60)
+which.max(df$gdp85)
+```
+
+### Неоднородности
+
+#### Нефть
+```{r}
+my_cols <- c("light blue", "orange")
+pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$oil], pch = 19,  cex = 0.5, oma=c(3,3,6,8))
+par(xpd = TRUE)
+legend("bottomright", legend = c("нет", "есть"), col = my_cols, pch = 19,  cex = 0.5)
+title("Matrix Plot (group by oil)")
+```
+
+#### Участие в ОЭСР
+```{r}
+pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$oecd], pch = 19,  cex = 0.5, oma=c(3,3,6,10.5))
+par(xpd = TRUE)
+legend("bottomright", legend = c("non-member", "member"), col = my_cols, pch = 19,  cex = 0.5)
+title("Matrix Plot (group by OECD membership)")
+```
+
+#### Качество данных
+
+```{r}
+pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$inter], pch = 19,  cex = 0.5, oma=c(3,3,6,10))
+par(xpd = TRUE)
+legend("bottomright", legend = c("poor quality", "good quality"), col = my_cols, pch = 19,  cex = 0.5)
+title("Matrix Plot (group by quality of data)")
+```
+
+
