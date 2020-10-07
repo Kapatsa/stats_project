@@ -131,18 +131,27 @@ which.max(df$gdp60)
 which.max(df$gdp85)
 ```
 
+Скорее всего данный аутлаер связан либо с ошибкой в данных, либо с умышленым завышением показателя ВВП страной, о чём немного позже.
+
 ### Неоднородности
 
 #### Нефть
+
+Мы предположили, что страны, которые добывают нефть, должны в целом положительным образом отличаться от других.
+
 ```{r}
 my_cols <- c("light blue", "orange")
 pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$oil], pch = 19,  cex = 0.5, oma=c(3,3,6,8))
 par(xpd = TRUE)
-legend("bottomright", legend = c("нет", "есть"), col = my_cols, pch = 19,  cex = 0.5)
+legend("bottomright", legend = c("no oil", "oil"), col = my_cols, pch = 19,  cex = 0.5)
 title("Matrix Plot (group by oil)")
 ```
+Однако, при делении данных по фактору "нефть", сложно установить неоднородность данных. Можно предположить, что наличие/отсутсвие нефти не влияет на данные экономические показатели. 
 
 #### Участие в ОЭСР
+
+ОЭСР — это крупная международная организация, которая была создана для поддержки плана Маршалла для восстановления Западной Европы после Второй Мировой, поэтому ожидаем разницу в соответствующих условных распределениях.
+
 ```{r}
 pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$oecd], pch = 19,  cex = 0.5, oma=c(3,3,6,10.5))
 par(xpd = TRUE)
@@ -150,7 +159,11 @@ legend("bottomright", legend = c("non-member", "member"), col = my_cols, pch = 1
 title("Matrix Plot (group by OECD membership)")
 ```
 
+Данную неоднородность можно объяснить тем, что в ОЭСР входят развитые европейские страны из-за чего мы можем наблюдать достаточно высокие показатели ВВП в этой группе.
+
 #### Качество данных
+
+Здесь сложно что-либо ожидать от 
 
 ```{r}
 pairs(~ log(gdp60) + log(gdp85) + gdpgrowth + invest + school, data = df, col = my_cols[df$inter], pch = 19,  cex = 0.5, oma=c(3,3,6,10))
@@ -159,4 +172,33 @@ legend("bottomright", legend = c("poor quality", "good quality"), col = my_cols,
 title("Matrix Plot (group by quality of data)")
 ```
 
+По данному matrix plot можно сделать предположение, что наблюдается однородность данных по признаку "inter", что в свою очередь означает, что в общем все данные репрезентативные. (Аутлаер, как можно заметить, входит в "poor quality").
 
+```{r}
+library(psych)
+df_for_cor <- data.frame( "ln_gdp60"     = log(df$gdp60), 
+                          "ln_gdp85"     = log(df$gdp85), 
+                          "gdpgrowth" = df$gdpgrowth,
+                          "invest"    = df$invest,
+                          "school"    = df$school)
+
+ind_60 <- which.max(df_for_cor$ln_gdp60)
+ind_85 <- which.max(df_for_cor$ln_gdp85)
+df_for_cor$ln_gdp60[ind_60] <- NA
+df_for_cor$ln_gdp85[ind_85] <- NA
+
+pairs.panels(df_for_cor, 
+             method = "pearson", 
+             hist.col = "#00AFBB",
+             density = TRUE,
+             ellipses = FALSE,
+             lm = TRUE,
+             stars = TRUE
+             )
+```
+
+1. Между ВВП на душу населения в 1960 и средним отношением инвестиций наблюдается корреляция с коэфицентом 0.58.
+Между ВВП на душу населения в 1985 и средним отношением инвестиций наблюдается корреляция с коэфицентом 0.71.
+Чем больше инвестируют в страну, тем больше она производит и тем больше ВВП.
+
+2. Так же показатели ВВП хорошо коррелируют со средней долей населения трудоспособного возраста, посещавшего среднюю школу.
