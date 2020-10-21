@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Введение
 
-Данный отчёт представляет из себя результат работы по первичному анализу данных датасета `GrowthDJ`, который доступен по следующей  [ссылке](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).
+Данный отчёт представляет из себя результат работы по анализу данных датасета `GrowthDJ`, который доступен по следующей  [ссылке](https://vincentarelbundock.github.io/Rdatasets/articles/data.html).
 
 Сразу же запишем этот датасет в датафрейм `df` и покажем начало таблицы:
 ```{r}
@@ -192,7 +192,7 @@ df_for_cor$ln_gdp85[ind_85] <- NA
 
 pairs.panels(df_for_cor, 
              method = "pearson", 
-             hist.col = "#00AFBB",
+             hist.col = "orange",
              density = TRUE,
              ellipses = FALSE,
              lm = TRUE,
@@ -210,9 +210,51 @@ pairs.panels(df_for_cor,
 
 1. Выберите в данных категоризующую переменную. По ней выборка разбивается на подвыборки (например, случай, когда вы увидели неоднородность при первичном анализе, но необязательно).
 
-2. Сначала имеет смысл посмотреть на сравнение сравнение распределений в группах с помощью ящиков с усами (box plot). С помощью ящиков с усами там, где групп больше двух, можно выбрать две из них, которые интересно сравнить с помощью критериев.
+Возьмём членство в ОЭСР как категоризующую переменную.
+
+2. Сначала имеет смысл посмотреть на сравнение распределений в группах с помощью ящиков с усами (box plot). С помощью ящиков с усами там, где групп больше двух, можно выбрать две из них, которые интересно сравнить с помощью критериев.
+
+```{r}
+par(mfrow=c(1,2))
+
+boxplot(log(gdp60)~oecd,
+data=df,
+main="GDP in 1960",
+xlab="membership of oecd",
+ylab="log GDP (per capita)",
+ylim = c(6, 11.5),
+col="orange",
+border="brown"
+)
+
+boxplot(log(gdp85)~oecd,
+data=df,
+main="GDP in 1985",
+xlab="membership of oecd",
+ylab="log GDP (per capita)",
+ylim = c(6, 11.5),
+col="orange",
+border="brown"
+)
+```
+
 
 3. Проверьте, близко ли распределение выбранных признаков к нормальному. Можно использовать различные критерии для проверки этой гипотезы, можно рисовать normal probability plot.
+
+```{r}
+par(mfrow=c(2,2))
+hist(log(df$gdp60[which(df$oecd=="yes")]), col= "light green", main = "1960", xlab = "log GDP (per capita)")
+hist(log(df$gdp85)[which(df$oecd=="yes")], col= "light green", main = "1985", xlab = "log GDP (per capita)")
+title("oecd members", line = -1, outer = TRUE)
+hist(log(df$gdp60[which(df$oecd=="no")]), col= "orange", main = "1960", xlab = "log GDP (per capita)")
+hist(log(df$gdp85)[which(df$oecd=="no")], col= "orange", main = "1985", xlab = "log GDP (per capita)")
+title("non-oecd members", line = -14, outer = TRUE)
+shapiro.test(log(df$gdp60)[which(df$oecd=="yes")])
+shapiro.test(log(df$gdp85)[which(df$oecd=="yes")])
+shapiro.test(log(df$gdp60)[which(df$oecd=="no")])
+shapiro.test(log(df$gdp85)[which(df$oecd=="no")])
+```
+
 
 4. Сравните группы между собой. Можно сравнить по разным критериям, например, критерий t-test, который умеет обнаруживать разницу в среднем. Непараметрический аналог, с помощью которого можно обнаруживать сдвиг - критерий Манна-Уитни/Вилкоксона.
 
