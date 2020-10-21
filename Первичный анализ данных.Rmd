@@ -135,7 +135,14 @@ which.max(df$gdp60)
 which.max(df$gdp85)
 ```
 
-Оказывается, что такой высокий показатель ВВП на душу населения наблюдался в Кувейте, одном из крупнейших экспортёров нефти.
+Оказывается, что такой высокий показатель ВВП на душу населения наблюдался в Кувейте, одном из крупнейших экспортёров нефти. Уберём его для дальнейшего анализа.
+
+```{r}
+df <- df[-56,]
+```
+
+
+
 
 ### Неоднородности
 
@@ -237,6 +244,9 @@ col="orange",
 border="brown"
 )
 ```
+
+
+
 ```{r}
 boxplot(school~oecd,
 data=df,
@@ -272,10 +282,43 @@ shapiro.test((df$gdpgrowth)[which(df$oecd=="no")])
 shapiro.test((df$gdpgrowth)[which(df$oecd=="yes")])
 ```
 
-
 4. Сравните группы между собой. Можно сравнить по разным критериям, например, критерий t-test, который умеет обнаруживать разницу в среднем. Непараметрический аналог, с помощью которого можно обнаруживать сдвиг - критерий Манна-Уитни/Вилкоксона.
+
+```{r}
+t.test(log(gdp85) ~ oecd, data = df)
+wilcox.test(log(gdp85) ~ oecd, data = df)
+```
+
+
+```{r}
+t.test(gdpgrowth ~ oecd, data = df)
+wilcox.test(gdpgrowth ~ oecd, data = df)
+```
+
+```{r}
+t.test(log(gdp85) ~ oil, data = df)
+wilcox.test(log(gdp85) ~ oil, data = df)
+```
+
+```{r}
+t.test(invest ~ oil, data = df)
+t.test(invest ~ oil, data = df, alternative = "less")
+```
 
 5. Но распределения могут отличаться не только сдвигом. Рассмотрите критерий Колмогорова-Смирнова, который может обнаружить, если распределения отличаются формой.
 
+```{r}
+ks.test(df$gdpgrowth[df$oecd == "yes"], df$gdpgrowth[df$oecd == "no"])
+```
+
+```{r}
+ks.test(df$invest[df$oil == "yes"], df$invest[df$oil == "no"])
+```
+
 6. Если есть признаки, которые характеризуют одно и то же (например, время, которое человек тратит на сон, и время на работу), то аналогично производится сравнение по t-критерию и по непараметрическим критериям, они называются парными.
 
+```{r}
+not_na <- !(is.na(df$gdp60) | is.na(df$gdp85))
+t.test(df$gdp60[not_na], y = df$gdp85[not_na])
+t.test(df$gdp60[not_na], y = df$gdp85[not_na], paired = TRUE)
+```
