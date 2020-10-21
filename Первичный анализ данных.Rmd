@@ -220,7 +220,7 @@ par(mfrow=c(1,2))
 boxplot(log(gdp60)~oecd,
 data=df,
 main="GDP in 1960",
-xlab="membership of oecd",
+xlab="membership in oecd",
 ylab="log GDP (per capita)",
 ylim = c(6, 11.5),
 col="orange",
@@ -230,14 +230,23 @@ border="brown"
 boxplot(log(gdp85)~oecd,
 data=df,
 main="GDP in 1985",
-xlab="membership of oecd",
+xlab="membership in oecd",
 ylab="log GDP (per capita)",
 ylim = c(6, 11.5),
 col="orange",
 border="brown"
 )
 ```
-
+```{r}
+boxplot(school~oecd,
+data=df,
+main="Secondary school enrollment",
+xlab="membership in oecd",
+ylab="fraction",
+col="orange",
+border="brown"
+)
+```
 
 3. Проверьте, близко ли распределение выбранных признаков к нормальному. Можно использовать различные критерии для проверки этой гипотезы, можно рисовать normal probability plot.
 
@@ -253,6 +262,14 @@ shapiro.test(log(df$gdp60)[which(df$oecd=="yes")])
 shapiro.test(log(df$gdp85)[which(df$oecd=="yes")])
 shapiro.test(log(df$gdp60)[which(df$oecd=="no")])
 shapiro.test(log(df$gdp85)[which(df$oecd=="no")])
+```
+
+```{r}
+par(mfrow=c(1,2))
+hist((df$gdpgrowth)[which(df$oecd=="no")], col= "orange", main = "not in oecd", xlab = "GDP growth")
+hist((df$gdpgrowth)[which(df$oecd=="yes")], col= "light green", main = "oecd members", xlab = "GDP growth")
+shapiro.test((df$gdpgrowth)[which(df$oecd=="no")])
+shapiro.test((df$gdpgrowth)[which(df$oecd=="yes")])
 ```
 
 
