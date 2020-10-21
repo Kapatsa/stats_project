@@ -210,13 +210,251 @@ pairs.panels(df_for_cor,
 
 1. Выберите в данных категоризующую переменную. По ней выборка разбивается на подвыборки (например, случай, когда вы увидели неоднородность при первичном анализе, но необязательно).
 
+После проведеного первичного анализа наблюдалась неоднородность по признаку "Участие в ОЭСР". Разбитие данных будем производить по этому признаку. 
+
 2. Сначала имеет смысл посмотреть на сравнение сравнение распределений в группах с помощью ящиков с усами (box plot). С помощью ящиков с усами там, где групп больше двух, можно выбрать две из них, которые интересно сравнить с помощью критериев.
+
+```{r}
+df_group <- data.frame(df)
+boxplot(data = df_group, log(gdp60) ~ oecd, 
+        main = "gdp60 по разделяющей переменой oecd"
+        )
+
+boxplot(data = df_group, log(gdp85) ~ oecd, 
+        main = "gdp85 по разделяющей переменой oecd"
+        )
+
+boxplot(data = df_group, gdpgrowth ~ oecd, 
+        main = "gdpgrowth по разделяющей переменой oecd"
+        )
+
+boxplot(data = df_group, invest ~ oecd, 
+        main = "invest по разделяющей переменой oecd"
+        )
+
+boxplot(data = df_group, school ~ oecd, 
+        main = "school по разделяющей переменой oecd"
+        )
+```
+На первый взгляд можно предположить, что наблюдаются отличия во всех сравнениях  кроме gdpgrowth.
+
+Далее исключин переменую gdpgrowth из дальнейшего анализа, так как отличия по этой переменой в группах не велики. 
+
 
 3. Проверьте, близко ли распределение выбранных признаков к нормальному. Можно использовать различные критерии для проверки этой гипотезы, можно рисовать normal probability plot.
 
+Построим гистограмы и qqplot распределений по группам: 
+
+```{r}
+hist(log(df_group$gdp60[df_group$oecd == "yes"]), main = "gdp60 у входящих в ОЭСР")
+hist(log(df_group$gdp60[df_group$oecd == "no"]), main = "gdp60 у не входящих в ОЭСР")
+```
+
+```{r}
+qqnorm(log(df_group$gdp60[df_group$oecd == "yes"]), pch = 1, frame = FALSE, main = "gdp60 у входящих в ОЭСР")
+qqline(log(df_group$gdp60[df_group$oecd == "yes"]), col = "steelblue", lwd = 2)
+
+
+qqnorm(log(df_group$gdp60[df_group$oecd == "no"]), pch = 1, frame = FALSE, main = "gdp60 у не входящих в ОЭСР")
+qqline(log(df_group$gdp60[df_group$oecd == "no"]), col = "steelblue", lwd = 2)
+
+```
+
+```{r}
+hist(log(df_group$gdp85[df_group$oecd == "yes"]), main = "gdp85 у входящих в ОЭСР")
+hist(log(df_group$gdp85[df_group$oecd == "no"]), main = "gdp85 у не входящих в ОЭСР")
+```
+
+```{r}
+qqnorm(log(df_group$gdp85[df_group$oecd == "yes"]), pch = 1, frame = FALSE, main = "gdp85 у входящих в ОЭСР")
+qqline(log(df_group$gdp85[df_group$oecd == "yes"]), col = "steelblue", lwd = 2)
+
+
+qqnorm(log(df_group$gdp85[df_group$oecd == "no"]), pch = 1, frame = FALSE, main = "gdp85 у не входящих в ОЭСР")
+qqline(log(df_group$gdp60[df_group$oecd == "no"]), col = "steelblue", lwd = 2)
+
+```
+
+```{r}
+hist(df_group$invest[df_group$oecd == "yes"], main = "invest у входящих в ОЭСР")
+hist(df_group$invest[df_group$oecd == "no"], main = "invest у не входящих в ОЭСР")
+```
+```{r}
+qqnorm(df_group$invest[df_group$oecd == "yes"], pch = 1, frame = FALSE, main = "invest у входящих в ОЭСР")
+qqline(df_group$invest[df_group$oecd == "yes"], col = "steelblue", lwd = 2)
+
+
+qqnorm(df_group$invest[df_group$oecd == "no"], pch = 1, frame = FALSE, main = "invest у не входящих в ОЭСР")
+qqline(df_group$invest[df_group$oecd == "no"], col = "steelblue", lwd = 2)
+
+```
+```{r}
+hist(df_group$school[df_group$oecd == "yes"], main = "school у входящих в ОЭСР")
+hist(df_group$school[df_group$oecd == "no"], main = "school у не входящих в ОЭСР")
+```
+
+```{r}
+qqnorm(df_group$school[df_group$oecd == "yes"], pch = 1, frame = FALSE, main = "school у входящих в ОЭСР")
+qqline(df_group$school[df_group$oecd == "yes"], col = "steelblue", lwd = 2)
+
+
+qqnorm(df_group$school[df_group$oecd == "no"], pch = 1, frame = FALSE, main = "school у не входящих в ОЭСР")
+qqline(df_group$school[df_group$oecd == "no"], col = "steelblue", lwd = 2)
+
+```
+Воспользуемся критериями для проверки распределений на нормальность:
+1) Критерий Шапиро-Уилка
+
+```{r}
+shapiro.test(log(df_group$gdp60[df_group$oecd == "yes"]))
+shapiro.test(log(df_group$gdp60[df_group$oecd == "no"]))
+
+
+shapiro.test(log(df_group$gdp85[df_group$oecd == "yes"]))
+shapiro.test(log(df_group$gdp85[df_group$oecd == "no"]))
+
+
+shapiro.test(df_group$invest[df_group$oecd == "yes"])
+shapiro.test(df_group$invest[df_group$oecd == "no"])
+
+
+shapiro.test(df_group$school[df_group$oecd == "yes"])
+shapiro.test(df_group$school[df_group$oecd == "no"])
+```
+
+2) Критерий Лиллиефорса
+
+
+```{r}
+install.packages("nortest")
+library(nortest)
+
+lillie.test(log(df_group$gdp60[df_group$oecd == "yes"]))
+lillie.test(log(df_group$gdp60[df_group$oecd == "no"]))
+
+lillie.test(log(df_group$gdp85[df_group$oecd == "yes"]))
+lillie.test(log(df_group$gdp85[df_group$oecd == "no"]))
+
+
+lillie.test(df_group$invest[df_group$oecd == "yes"])
+lillie.test(df_group$invest[df_group$oecd == "no"])
+
+
+lillie.test(df_group$school[df_group$oecd == "yes"])
+lillie.test(df_group$school[df_group$oecd == "no"])
+```
+3) Критерий согласия Пирсона (Хи-квадрат)
+
+```{r}
+
+pearson.test(log(df_group$gdp60[df_group$oecd == "yes"]))
+pearson.test(log(df_group$gdp60[df_group$oecd == "no"]))
+
+pearson.test(log(df_group$gdp85[df_group$oecd == "yes"]))
+pearson.test(log(df_group$gdp85[df_group$oecd == "no"]))
+
+
+pearson.test(df_group$invest[df_group$oecd == "yes"])
+pearson.test(df_group$invest[df_group$oecd == "no"])
+
+
+pearson.test(df_group$school[df_group$oecd == "yes"])
+pearson.test(df_group$school[df_group$oecd == "no"])
+```
+Сгенирируем таблицу по нашим результатам тестов для группы входящей в ОЭСР:
+
+```{r}
+
+table_p <- data.frame(Data = c("log(gdp60))", "log(gdp85))","invest", "school"),
+                      Sh_W = c(0.01498, 0.005064, 0.476, 0.2493 ),
+                      Lilli = c(0.0284, 0.00118, 0.5986,                                                         0.4297),
+                      Pearson = c(0.0436, 0.008551,0.5887,0.9233)
+)
+
+table_p
+
+```
+По полученным результатам можно сделать следующие выводы:
+1) Мы не можем принять гипотезу о нормальном распределении следующих признаков: log(gdp60)) и log(gdp85))
+
+2)Нету оснований отвергнуть гипотезу о нормальном распределении признаков: invest и school
+
+Сгенирируем таблицу по нашим результатам тестов для группы не входящей в ОЭСР:
+
+```{r}
+
+table_pp <- data.frame(Data = c("log(gdp60))", "log(gdp85))","invest", "school"),
+                      Sh_W = c(0.0001965, 0.0394 , 0.004587,0.00007895  ),
+                      Lilli = c(0.08193, 0.03168 , 0.1189 , 0.005782  ),
+                      Pearson = c(0.6226,0.008879 ,0.4299 ,0.0001847 )
+)
+
+table_pp
+
+```
+По полученным результатам можно сделать следующие выводы:
+1) Мы не можем принять гипотезу о нормальном распределении следующих признаков: 
+
+2)Нету оснований отвергнуть гипотезу о нормальном распределении признаков: 
+
+
+
 4. Сравните группы между собой. Можно сравнить по разным критериям, например, критерий t-test, который умеет обнаруживать разницу в среднем. Непараметрический аналог, с помощью которого можно обнаруживать сдвиг - критерий Манна-Уитни/Вилкоксона.
+
+1) t-test: 
+Так как единсвеная пара с неотвергнутой гипотезой о нормальности это invest, то применяем t-test только для нее: 
+а) для invest:
+```{r}
+t.test(df_group$invest[df_group$oecd == "yes"], df_group$invest[df_group$oecd == "no"])
+
+```
+Исходя из результата теста можно сделать вывод, что отличие средних статистически значимо.
+
+
+2)Манна-Уитни/Вилкоксона:
+
+а) для log(gdp60):
+```{r}
+wilcox.test(log(df_group$gdp60[df_group$oecd == "yes"]), log(df_group$gdp60[df_group$oecd == "no"]))
+
+```
+Исходя из результата теста можно сделать вывод, что отличие медиан статистически значимо.
+б) для log(gdp85):
+```{r}
+wilcox.test(log(df_group$gdp85[df_group$oecd == "yes"]), log(df_group$gdp85[df_group$oecd == "no"]))
+
+```
+Исходя из результата теста можно сделать вывод, что отличие медиан статистически значимо.
+
+в) для invest:
+```{r}
+wilcox.test(df_group$invest[df_group$oecd == "yes"], df_group$invest[df_group$oecd == "no"])
+
+```
+Исходя из результата теста можно сделать вывод, что отличие медиан статистически значимо.
+
+г) для school:
+```{r}
+wilcox.test(df_group$school[df_group$oecd == "yes"], df_group$school[df_group$oecd == "no"])
+
+```
+Исходя из результата теста можно сделать вывод, что отличие медиан статистически значимо.
+
+
 
 5. Но распределения могут отличаться не только сдвигом. Рассмотрите критерий Колмогорова-Смирнова, который может обнаружить, если распределения отличаются формой.
 
-6. Если есть признаки, которые характеризуют одно и то же (например, время, которое человек тратит на сон, и время на работу), то аналогично производится сравнение по t-критерию и по непараметрическим критериям, они называются парными.
+```{r}
+ks.test(df$gdpgrowth[df$oecd == "yes"], df$gdpgrowth[df$oecd == "no"])
+```
 
+```{r}
+ks.test(df$invest[df$oil == "yes"], df$invest[df$oil == "no"])
+```
+
+6. Если есть признаки, которые характеризуют одно и то же (например, время, которое человек тратит на сон, и время на работу), то аналогично производится сравнение по t-критерию и по непараметрическим критериям, они называются парными.
+```{r}
+not_na <- !(is.na(df$gdp60) | is.na(df$gdp85))
+t.test(df$gdp60[not_na], y = df$gdp85[not_na])
+t.test(df$gdp60[not_na], y = df$gdp85[not_na], paired = TRUE)
+```
