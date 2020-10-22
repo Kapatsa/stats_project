@@ -399,8 +399,8 @@ table_p
 ```{r, echo = FALSE}
 
 table_pp <- data.frame(Data = c("log(gdp60))", "log(gdp85))","invest", "school"),
-                      Sh_W = c(0.0001965, 0.0394 , 0.004587,0.00007895  ),
-                      Pearson = c(0.07117, 0.03387 ,0.004587 ,7.895e-05 )
+                      Sh_W = c(0.07117, 0.0339 , 0.00558,0.0000747  ),
+                      Pearson = c(0.1893, 0.0093 ,0.3148 ,0.00071 )
 )
 
 table_pp
