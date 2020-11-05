@@ -623,6 +623,7 @@ cor.test(df$invest[which(df$oecd == "no")], df$gdpgrowth[which(df$oecd == "no")]
 
 plot(df$invest[which(df$oecd == "no")], df$gdpgrowth[which(df$oecd == "no")], main = "oecd = no")
 ```
+
 Спирмен дает более маленький p-value, так как коэффициент корреляции Пирсона менее устойчив к гетероскедастичности.
 
 ```{r}
@@ -632,6 +633,7 @@ cor.test(df$invest[which(df$oecd == "yes")], df$gdpgrowth[which(df$oecd == "yes"
 
 plot(df$invest[which(df$oecd == "yes")], df$gdpgrowth[which(df$oecd == "yes")], main = "oecd = yes")
 ```
+
 
 По критерию Спирмена получился более высокий показатель p-value, скорее всего это связано с тем, что коэффициент корреляции Пирсона менее устойчив к выбросам.
 
@@ -645,6 +647,7 @@ cor.test(df$school[which(df$oecd == "no")], df$gdp85[which(df$oecd == "no")], me
 
 plot(df$school[which(df$oecd == "no")], df$gdp85[which(df$oecd == "no")], main = "oecd = no")
 ```
+
 Так как зависимость монотоная и нелинейная, то p-value критерия Спирмана меньше.
 
 
@@ -655,6 +658,7 @@ cor.test(df$school[which(df$oecd == "yes")], df$gdp85[which(df$oecd == "yes")], 
 
 plot(df$school[which(df$oecd == "yes")], df$gdp85[which(df$oecd == "yes")], main = "oecd = yes")
 ```
+
 Из-за наличия выбросов критерий Пирсона дает p-value, которое не дает основания принять нулевую гипотезу. А критерий Спирмана напротив не дает оснований отвергнуть нулевую гипотезу о равенстве коэффициента корреляции 0.
 
 
@@ -670,6 +674,7 @@ cor.test(log(df$gdp60[which(df$oecd == "no")]), log(df$gdp85[which(df$oecd == "n
 plot(log(df$gdp60[which(df$oecd == "no")]), log(df$gdp85[which(df$oecd == "no")]), main = "oecd = no")
 
 ```
+
 Оба критерия дают одинаковые результаты из-за хорошей линейной зависимости и гомоскедастичности признаков. 
 
 
